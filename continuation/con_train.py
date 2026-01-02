@@ -5,19 +5,19 @@ from stable_baselines3.common.env_util import make_vec_env
 # Parallel environments
 vec_env = make_vec_env(lambda: tetris_env.make_env(render=False, obs_size=22), n_envs=8)
 
-model = PPO.load("continuation/model/PPO22_3_6_2_0_3_2", vec_env)
+model = PPO.load("continuation/model/PPO_1_5_2_1_1", vec_env)
 # (alife=0.05, game_over=-10)
 # PPO{obs_size}_{T-steps}_{d_holes==0 -> +0.a}_{-0.b * d_holes} _{clear_line^c * 1 + 1}_{-0.d * d_height}_{-0.0e * d_bump}_{-0.0f * max_height}
 model.learn(
     total_timesteps=50_000_000,
-    tb_log_name="PPO22_3_6_2_0_3_2",
+    tb_log_name="PPO22_2_5_2_1_3_1_2",
     reset_num_timesteps=False,
 )
-model.save("continuation/model/PPO22_3_6_2_0_3_2")
+model.save("continuation/model/PPO_1_5_2_1_3_1_2")
 
 """ 
-uv run python -m continuation.con_train
-tensorboard --logdir=continuation/log
+uv run python -m con.con_train
+tensorboard --logdir=con/log
 
  """
 

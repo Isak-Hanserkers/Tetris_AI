@@ -14,6 +14,25 @@ class ExtendObservation(gym.ObservationWrapper):
             low=-np.inf, high=np.inf, shape=(obs_size,), dtype=np.float32
         )
 
+    def _infer_rotation(self, root):
+        active = root.active_tetromino
+        active_mat = active.matrix
+
+        # find canonical base matrix by id
+        for t in root.tetrominoes:
+            if t.id == active.id:
+                base = t.matrix
+                break
+        else:
+            return 0  # fallback
+
+        # try all rotations
+        for k in range(4):
+            if np.array_equal(np.rot90(base, k), active_mat):
+                return k
+
+        return 0  # safe fallback
+
     def observation(self, observation):
         basic = observation
 
@@ -27,10 +46,14 @@ class ExtendObservation(gym.ObservationWrapper):
         id = np.zeros(7)
         id[id_index - 2] = 1
 
+        # infer rotation
+        rotation = self._infer_rotation(root)
+        rotation_onehot = np.eye(4)[rotation]     # length 4
+
         xy = [x / 10.0, y / 20.0]
         id_val = [(id_index - 2) / 6]
-        if self.obs_size == 22:
-            pieces = [basic / 20.0, xy, id]
+        if self.obs_size == 26:
+            pieces = [basic / 20.0, xy, id, rotation_onehot]
         elif self.obs_size == 16:
             pieces = [basic / 20.0, xy, id_val]
         elif self.obs_size == 32:
